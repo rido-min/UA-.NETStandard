@@ -120,25 +120,23 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Stack\Opc.Ua.Bindings.Https\Opc.Ua.Bindings.Https.csproj">
-      <Project>{92d98d3d-2a7d-4f4b-8c72-1a98908d0221}</Project>
-      <Name>Opc.Ua.Bindings.Https</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Stack\Opc.Ua.Core\Opc.Ua.Core.csproj">
-      <Project>{4569aaa2-710b-4e8b-a4c6-f917777814da}</Project>
-      <Name>Opc.Ua.Core</Name>
-    </ProjectReference>
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Bindings.Https">
+      <Version>1.4.370.12</Version>
+    </PackageReference>
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client">
+      <Version>1.4.370.12</Version>
+    </PackageReference>
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Configuration">
+      <Version>1.4.370.12</Version>
+    </PackageReference>
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core">
+      <Version>1.4.370.12</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\ClientControls.Net4\UA Client Controls.csproj">
-      <Project>{A247D2EE-14FC-463D-A9BA-6CFF1EF22B7A}</Project>
+      <Project>{a247d2ee-14fc-463d-a9ba-6cff1ef22b7a}</Project>
       <Name>UA Client Controls</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Libraries\Opc.Ua.Client\Opc.Ua.Client.csproj">
-      <Project>{cd3c8738-1fbb-405d-aec0-92e76bf399a0}</Project>
-      <Name>Opc.Ua.Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Libraries\Opc.Ua.Configuration\Opc.Ua.Configuration.csproj">
-      <Project>{de6b7d4f-e566-45cb-a876-086e5cd50fb0}</Project>
-      <Name>Opc.Ua.Configuration</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
