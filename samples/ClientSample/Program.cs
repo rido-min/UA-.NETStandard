@@ -2,46 +2,23 @@
 using ClientSample;
 using Opc.Ua;
 using Opc.Ua.Client;
-using Opc.Ua.Configuration;
-using static System.Net.Mime.MediaTypeNames;
 
-Console.WriteLine(Environment.GetEnvironmentVariable("CommonApplicationData"));
+
+
 
 string url = "opc.tcp://aci-contoso-a4h4m6w-plc1.centraluseuap.azurecontainer.io:50000";
-ApplicationConfiguration config = new ApplicationConfiguration() {
-    ApplicationType = ApplicationType.Client,
-    ApplicationName = "Consle OPC Client",
-    SecurityConfiguration = new SecurityConfiguration() {
-        ApplicationCertificate = new CertificateIdentifier() {
-            StoreType = @"Directory",
-            StorePath = @"%CommonApplicationData%\OPC Foundation\CertificateStores\MachineDefault",
-            SubjectName = "MyOpcClient" },
-        TrustedIssuerCertificates = new CertificateTrustList {
-            StoreType = @"Directory",
-            StorePath = @"%CommonApplicationData%\OPC Foundation\CertificateStores\UA Certificate Authorities" },
-        TrustedPeerCertificates = new CertificateTrustList {
-            StoreType = @"Directory",
-            StorePath = @"%CommonApplicationData%\OPC Foundation\CertificateStores\UA Applications" },
-        RejectedCertificateStore = new CertificateTrustList {
-            StoreType = @"Directory",
-            StorePath = @"%CommonApplicationData%\OPC Foundation\CertificateStores\RejectedCertificates" },
-        AutoAcceptUntrustedCertificates = true
-    },
-    TransportConfigurations = new TransportConfigurationCollection(),
-    TransportQuotas = new TransportQuotas { OperationTimeout = (int)TimeSpan.FromMinutes(10).TotalMilliseconds },
-    ClientConfiguration = new ClientConfiguration { DefaultSessionTimeout = (int)TimeSpan.FromMinutes(1).TotalMilliseconds }
-};
-config.Validate(ApplicationType.Client).GetAwaiter().GetResult();
-config.CertificateValidator.CertificateValidation += (s, e) => e.AcceptAll = true;
+var config = ConnectionConfig.Create(url);
+string[] filter = "OpcPlc/Telemetry/Basic".Split('/');
 
-ApplicationInstance app = new ApplicationInstance(config);
-app.CheckApplicationInstanceCertificate(false, 2048).GetAwaiter().GetResult();
 
 EndpointDescription selectedEndpoint = CoreClientUtils.SelectEndpoint(url, false, (int)TimeSpan.FromSeconds(30).TotalMilliseconds);
 EndpointConfiguration endpointConfiguration = EndpointConfiguration.Create(config);
 ConfiguredEndpoint endpoint = new ConfiguredEndpoint(null, selectedEndpoint, endpointConfiguration);
-Session session = await Session.Create(config, endpoint, false, "Akri Client", (uint)TimeSpan.FromSeconds(60).TotalMilliseconds,
+
+Session session = await Session.Create(config, endpoint, false, "TestClient", (uint)TimeSpan.FromSeconds(60).TotalMilliseconds,
     new UserIdentity(new AnonymousIdentityToken()), null);
+
+
 SessionBrowser sb = new SessionBrowser(session);
 
 List<ExpandedNodeId> varsToWatch = new List<ExpandedNodeId>();
@@ -49,20 +26,20 @@ List<ExpandedNodeId> varsToWatch = new List<ExpandedNodeId>();
 var references = sb.GetChildren();
 foreach (var rd in references)
 { 
-    if (rd.DisplayName.Text == "OpcPlc" || rd.DisplayName.Text.StartsWith("Boiler", StringComparison.OrdinalIgnoreCase))
+    if (rd.DisplayName.Text == filter[0])
     {
         Console.WriteLine(" {0}, {1}, {2} ", rd.DisplayName, rd.NodeId.ToString(), rd.NodeClass);
         ReferenceDescriptionCollection nextRefs = sb.GetChildren(rd.NodeId.ToString());
         foreach (var nextRd in nextRefs)
         {
-            if (nextRd.DisplayName.Text == "Telemetry")
+            if (nextRd.DisplayName.Text == filter[1])
             {
                 Console.WriteLine("   + {0}, {1}, {2} next", nextRd.DisplayName, nextRd.NodeId.ToString(), nextRd.NodeClass);
                 ReferenceDescriptionCollection nextRefs2 = sb.GetChildren(nextRd.NodeId.ToString());
 
                 foreach (var rrd in nextRefs2)
                 {
-                    if (rrd.DisplayName.Text == "Basic")
+                    if (rrd.DisplayName.Text == filter[2])
                     {
                         Console.WriteLine("   +  + {0}, {1}, {2} next", rrd.DisplayName, rrd.NodeId.ToString(), rrd.NodeClass);
                         ReferenceDescriptionCollection nr3 = sb.GetChildren(rrd.NodeId.ToString(), NodeClass.Variable);
